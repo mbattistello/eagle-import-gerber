@@ -166,6 +166,18 @@ string rtos(real num) {
   return temp;
 }
 
+string strreplace(string original, string toReplace, string replaceWith){
+  string ret = "";
+  string left = original;
+  while (strstr(left, toReplace) >= 0) {
+    ret += strsub(left, 0, strstr(left, toReplace));
+    ret += replaceWith;
+    left = strsub(left, strstr(left, toReplace) + strlen(toReplace));
+  }
+  ret += left;
+  return ret;
+}
+
 string GetStartDir(){
   string dir = cfgget("ulp.gerberimport.startdir", UlpPath);
 
@@ -352,6 +364,307 @@ string RemoveG54( string dirtyString ){
 }  //end sub
 
 
+
+int IsTopCooper( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.cmp",
+    "*.gtl",
+    "*copper_top*",
+    "*.top",
+    "*F_Cu.*",
+    "gtl.*",
+    "*-a.*",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsBottomCooper( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gbl",
+    "*copper_bottom*",
+    "*.sol",
+    "*.bot",
+    "*B_Cu.*",
+    "gbl.*",
+    "*-f.*",
+    "*.sec",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsTopSoldermask( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gts",
+    "*soldermask_top*",
+    "*.stc",
+    "*.smt",
+    "*_smc.*",
+    "*.smc",
+    "*F_Mask.*",
+    "gts.*",
+    "SMask_Top.*",
+    "*-am.*",
+    "*.tmk",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsBottomSoldermask( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gbs",
+    "*soldermask_bottom*",
+    "*.sts",
+    "*.smb",
+    "*_sms.*",
+    "*.sms",
+    "*B_Mask.*",
+    "gbs.*",
+    "SMask_Bot.*",
+    "*-fm.*",
+    "*.bmk",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsTopPaste( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gtp",
+    "*solderpaste_top*",
+    "*_spc.*",
+    "*F_Paste.*",
+    "*-ap.*",
+    "*.tpa",
+    "*.crc",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsBottomPaste( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*solderpaste_bottom*",
+    "*_sps.*",
+    "*B_Paste.*",
+    "*-fp.*",
+    "*.bpa",
+    "*.crs",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsTopSilkscreen( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gto",
+    "*silkscreen_top*",
+    "*.ptc",
+    "*.sst",
+    "*_tslk.*",
+    "*F_SilkS.*",
+    "gto.*",
+    "Silk_Top.*",
+    "*-as.*",
+    "*.tsk",
+    "*.plc",
+    "*.ssc",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsBottomSilkscreen( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.gbo",
+    "*silkscreen_bottom*",
+    "*.pls",
+    "*.ssb",
+    "*_bslk.*",
+    "*B_SilkS.*",
+    "gbo.*",
+    "Silk_Bot.*",
+    "*-fs.*",
+    "*.bsk",
+    "*.pls",
+    "*.sss",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsDrill( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.drl",
+    "drill.xln",
+    "*.drd",
+    "Throuhole.tap",
+    "*.txt",
+    "*.ncd",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+int IsOutline( string fileName ) {
+  int i = 0;
+  string patterns[] = 
+  {
+    "*.txt",
+    "*.rou",
+    "*.gml",
+    "Profile.gbr",
+    "NC_Drill.drl",
+    "drl.*",
+    "rout.*",
+    "*-mech.*",
+    "*.brd",
+    "*.dim",
+    ""
+  };
+  
+  while (1) {
+    if (patterns[i] == "")
+      return false;
+    string pattern = patterns[i];
+    pattern = strreplace(pattern, ".", "\\.");
+    pattern = strreplace(pattern, "*", "");
+    if( strxstr( fileName, pattern ) >= 0 ){
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
 int MapFileNameToLayer( string fileName ){
   /*
  *.cmp Top, Via, Pad……………Component side
@@ -376,14 +689,14 @@ int MapFileNameToLayer( string fileName ){
 .gpi gpi is gerber plot information
 .brd brd is eagle board file, cad tool (eagle native file format)
  */
-  string layerName = "Top";
+  string layerName = "";
   int layerIndex = -1;
-  int foundMatch = true;
-
+  int i = 0;
   //convert file name to all lower case
   fileName = strlwr( fileName );
 
-  if( strxstr( fileName, "\.cmp" ) >= 0 ){
+  
+  if ( IsTopCooper( fileName ) ) {
     layerName = "Top";
   }
   else if( strxstr( fileName, "\.ly2" ) >= 0 ){
@@ -395,16 +708,16 @@ int MapFileNameToLayer( string fileName ){
   else if( strxstr( fileName, "\.l15" ) >= 0 ){
     layerName = "Pads";
   }
-  else if( strxstr( fileName, "\.crc" ) >= 0 ){
+  else if( IsTopPaste( fileName ) ){
     layerName = "tCream";
   }
-  else if( strxstr( fileName, "\.crs" ) >= 0 ){
+  else if( IsBottomPaste( fileName ) ){
     layerName = "bCream";
   }
   else if( strxstr( fileName, "\.mil" ) >= 0 ){
     layerName = "Milling";
   }
-  else if( strxstr( fileName, "\.dim" ) >= 0 ){
+  else if( IsOutline( fileName ) ){
     layerName = "Dimension";
   }
   else if( strxstr( fileName, "\.fic" ) >= 0 ){
@@ -419,7 +732,7 @@ int MapFileNameToLayer( string fileName ){
   else if( strxstr( fileName, "\.gls" ) >= 0 ){
     layerName = "bGlue";
   }
-  else if( strxstr( fileName, "\.sol" ) >= 0 || strxstr( fileName, "\.sec" ) >= 0  ){
+  else if( IsBottomCooper( fileName ) ){
     layerName = "Bottom";
   }
   else if( strxstr( fileName, "\.plc" ) >= 0 || strxstr( fileName, "\.ssc" ) >= 0 ){
@@ -428,22 +741,19 @@ int MapFileNameToLayer( string fileName ){
   else if( strxstr( fileName, "\.pls" ) >= 0 || strxstr( fileName, "\.sss" ) >= 0 ){
     layerName = "bPlace";
   }
-  else if( strxstr( fileName, "\.stc" ) >= 0 || strxstr( fileName, "\.smc" ) >= 0 ){
+  else if( IsTopSoldermask( fileName ) ){
     layerName = "tStop";
   }
-  else if( strxstr( fileName, "\.sts" ) >= 0 || strxstr( fileName, "\.sms" ) >= 0  ){
+  else if( IsBottomSoldermask( fileName )  ){
     layerName = "bStop";
   }
-  else if( strxstr( fileName, "\.drd" ) >= 0 ){
+  else if( IsDrill( fileName ) ){
     layerName = "Drills";
 
     IsDrillFile = true;
   }
   else if( strxstr( fileName, "\.hol" ) >= 0 ){
     layerName = "Holes";
-  }
-  else{
-    foundMatch = false;
   }
 
 
@@ -461,7 +771,7 @@ int MapFileNameToLayer( string fileName ){
     }  //layers loop
   }  //board loop
 
-  if( foundMatch ){
+  if( layerName != "" ){
     dlgMessageBox( "Recommended layer '" + layerName + "' has been selected based on file extension. Change the Layer dropdown if you want to import to another layer." );
   }
   else{
