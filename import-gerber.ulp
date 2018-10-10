@@ -2555,7 +2555,7 @@ void ImportGerberFile( string filePath, string layerRow, int doImport ){
     aperture = fields[ 0 ];
 
     wireWidth = GetWireWidth( aperture );
-
+    
     //parse wire width - changeWidth = "CHANGE WIDTH " + changeWidth + ";\n";
     count = strsplit( fields, wireWidth, ' ' );
 
@@ -2609,9 +2609,10 @@ void ImportGerberFile( string filePath, string layerRow, int doImport ){
       wireWidth = GetWireWidth( currentAperture );
     }  //end if-else
 
-    //make sure a wire width was set
-    if( wireWidth == "" ){
-
+    // make sure a wire width was set
+    // and make sure that the contours drawn to the
+    // Dimension layer with 0 width
+    if (wireWidth == "" || layerId == "20") {
       wireWidth = "CHANGE WIDTH 0.00000;\n";
     }
 
@@ -2906,8 +2907,6 @@ dlgVBoxLayout {
       }
       else{
         ImportGerberFile( fileName, layerInfo[ EAGLELayerSelection], true );
-
-
       }
     }  //end button
 
