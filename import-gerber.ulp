@@ -149,6 +149,11 @@ int HasFillCommand = false;
 
 int SignalCount = 0;
 
+//build layer list
+string layerInfo[];
+string layerNames[];
+int layerCount = 0;
+
 //******************* general utils *******************//
 string itos(int num) {
   string temp;
@@ -1244,7 +1249,7 @@ string OutlineMacroWires( string macro, real x, real y  ){
   return wire;
 }
 
-string PolygonMacroWires( string macro, real x, real y  ){
+string PolygonMacroWires( string macro, real x, real y, string signalSuffix  ){
   // type - 0
   // exposure - 1
   // num verts - 2
@@ -1308,13 +1313,13 @@ string PolygonMacroWires( string macro, real x, real y  ){
           }
           else if( i == numVert ){
             //for final line connect back to start
-            wire += "WIRE 'S$" + itos( SignalCount ) + "' ( " + rtos( prevX ) + " " + rtos( prevY ) + " ) ( " + rtos( startX ) + " " + rtos( startY ) + ");\n";
+            wire += "WIRE 'S$" + itos( SignalCount ) + signalSuffix + "' ( " + rtos( prevX ) + " " + rtos( prevY ) + " ) ( " + rtos( startX ) + " " + rtos( startY ) + ");\n";
 
             SignalCount++;
           }
           else{
             //draw outlines
-            wire += "WIRE 'S$" + itos( SignalCount ) + "' ( " + rtos( prevX ) + " " + rtos( prevY ) + " ) ( " + rtos( xPt + x + xCenter ) + " " + rtos( yPt + y + yCenter ) + ");\n";
+            wire += "WIRE 'S$" + itos( SignalCount ) + signalSuffix + "' ( " + rtos( prevX ) + " " + rtos( prevY ) + " ) ( " + rtos( xPt + x + xCenter ) + " " + rtos( yPt + y + yCenter ) + ");\n";
 
             SignalCount++;
           }  //end if-else on i
@@ -1561,7 +1566,7 @@ string ThermalMacroWires( string macro, real x, real y  ){
   return wire;
 }
 
-string GetApertureMacroWires( string aperture, real x, real y, string apertureDef ){
+string GetApertureMacroWires( string aperture, real x, real y, string apertureDef, string signalSuffix ){
 
   //http://www.artwork.com/gerber/274x/rs274x.htm
 
@@ -1666,7 +1671,7 @@ string GetApertureMacroWires( string aperture, real x, real y, string apertureDe
     }
     else if( macType == "5" ){
       //polygon
-      macroWires = PolygonMacroWires( macro, x, y );
+      macroWires = PolygonMacroWires( macro, x, y, signalSuffix );
     }
     else if( macType == "6" ){
       //moire
@@ -1911,7 +1916,7 @@ string PolygonApertureWires( string definition, real x, real y ){
 }
 
 
-string GetApertureDefWires( string aperture, real x, real y ){
+string GetApertureDefWires( string aperture, real x, real y, string signalSuffix ){
 
   string wires;
 
@@ -1976,7 +1981,7 @@ string GetApertureDefWires( string aperture, real x, real y ){
         AddException( "Unknown aperture flash '" + definition + "' called. Unable to map to aperture in file." );
       }
       else{
-        wires = GetApertureMacroWires( definition, x, y, apertureDef );
+        wires = GetApertureMacroWires( definition, x, y, apertureDef, signalSuffix );
       }  //end if-else
     }  //end if-else
   }  //end if-else
@@ -2502,7 +2507,7 @@ string ParseLine( string line ){
 
 //******************* UI buttons actions *******************//
 
-void ImportGerberFile( string filePath, string layerRow, int doImport ){
+void ImportGerberFile( string filePath, string layerRow, int doImport, string signalSuffix){
 
   DoImport = doImport;
 
@@ -2625,7 +2630,7 @@ void ImportGerberFile( string filePath, string layerRow, int doImport ){
       //commands = commands + "WIRE 'S$" + itos(k) + "' (" + rtos( prevX ) + " " + rtos( prevY ) + ") (" + rtos( x ) + " " + rtos( y ) + ");\n";
 
       WriteCommands( wireWidth );
-      WriteCommands( "WIRE 'S$" + itos(SignalCount) + "' (" + rtos( prevX ) + " " + rtos( prevY ) + ") (" + rtos( x ) + " " + rtos( y ) + ");\n" );
+      WriteCommands( "WIRE 'S$" + itos(SignalCount) + signalSuffix +"' (" + rtos( prevX ) + " " + rtos( prevY ) + ") (" + rtos( x ) + " " + rtos( y ) + ");\n" );
 
       SignalCount++;
     }
@@ -2646,7 +2651,7 @@ void ImportGerberFile( string filePath, string layerRow, int doImport ){
         WriteCommands( "CHANGE WIDTH 0.0;\n" );
       }  //end if
 
-      WriteCommands( GetApertureDefWires( currentAperture, x, y ) );
+      WriteCommands( GetApertureDefWires( currentAperture, x, y, signalSuffix ) );
 
     }
     else if( opCode == "DRL" ){
@@ -2825,7 +2830,7 @@ void LoadGerberFile( string filePath ){
   dlgRedisplay();
 
   //simulate load to get exceptions
-  ImportGerberFile( filePath, itos( EAGLELayerSelection ), false );
+  ImportGerberFile( filePath, itos( EAGLELayerSelection ), false , "_" + layerNames[EAGLELayerSelection]);
 
   dlgRedisplay();
 
@@ -2849,12 +2854,6 @@ string startDir = GetStartDir();
 
 string fileName = startDir;
 
-
-
-//build layer list
-string layerInfo[];
-int layerCount = 0;
-
 //used in list views
 string emptyHeader;
 int selected = -1;
@@ -2864,7 +2863,7 @@ board(B){
   B.layers(L){
 
     layerInfo[ layerCount ] = itos(L.number) + "-" + L.name;
-
+    layerNames[layerCount ] = L.name;
     layerCount++;
   }  //layers loop
 }  //board loop
@@ -2906,7 +2905,7 @@ dlgVBoxLayout {
         dlgMessageBox( "Please Load file before importing" );
       }
       else{
-        ImportGerberFile( fileName, layerInfo[ EAGLELayerSelection], true );
+        ImportGerberFile( fileName, layerInfo[ EAGLELayerSelection], true , "_"+layerNames[EAGLELayerSelection]);
       }
     }  //end button
 
